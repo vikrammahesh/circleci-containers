@@ -1,13 +1,12 @@
 version: 2
 jobs:
    build:
-     machine:
-       - image: circleci/classic:latest
+     machine: true
      steps:
        - checkout
-       - docker build -t circleci-containers .
-       - docker run -d -p 80:80 circleci-containers; sleep 10
-       - curl --retry 10 --retry-delay 5 -v http://localhost:80               
+       - run: docker build -t circleci-containers .
+       - run: docker run -d -p 80:80 circleci-containers; sleep 10
+       - run: curl --retry 10 --retry-delay 5 -v http://localhost:80               
 workflows:
    version: 2
    test-trigger:
