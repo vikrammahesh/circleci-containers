@@ -1,24 +1,28 @@
 version: 2
 jobs:
-   build:
-     docker:
-       - image: circleci/python:3.6.2-stretch-browsers
-         environment:
-           TEST_DATABASE_URL: postgresql://root@localhost/circle_test
-       - image: circleci/postgres:9.6.5-alpine-ram
-     steps:
-       - checkout
-       - run: sudo apt update && sudo apt install postgresql-client-9.6
-       - run: whoami
-       - run: |
-           psql \
-           -d $TEST_DATABASE_URL \
-           -c "CREATE TABLE test(name char(25));"
-       - run: |
-           psql \
-           -d $TEST_DATABASE_URL \
-           -c "INSERT INTO test (name) VALUES ('fern')"
-       - run: |
-           psql \
-           -d $TEST_DATABASE_URL \
-           -c "SELECT * from test"
+  build:
+    machine:
+        image: circleci/classic:latest
+     
+    steps:
+        - checkout
+        - docker build -t circleci-containers .
+        - docker run -d -p 80:80 circleci-containers; sleep 10
+        - curl --retry 10 --retry-delay 5 -v http://localhost:80
+               
+workflows:
+  version:2
+  test-trigger:
+    trigger:
+      - schedule:
+          corn : "30 1 * * *"
+          filters:
+            branches:
+               only: master
+    jobs: 
+      - build
+  
+
+        
+        
+        
