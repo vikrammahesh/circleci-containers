@@ -6,7 +6,14 @@ jobs:
        - checkout
        - run: docker build -t circleci-containers .
        - run: docker run -d -p 80:80 circleci-containers; sleep 10
-       - run: curl --retry 10 --retry-delay 5 -v http://localhost:80               
+       - run: curl --retry 10 --retry-delay 5 -v http://localhost:80
+   get-container:
+     machine: true
+     steps:
+       - checkout
+       - run: docker run -d -p 80:80 circleci-containers; sleep 10
+       - run: docker container ls -a
+       - run: curl --retry 10 --retry-delay 5 -v http://localhost:80       
 workflows:
    version: 2
    test-trigger:
@@ -17,4 +24,4 @@ workflows:
              branches:
                only: master
      jobs: 
-       - build
+       - get-container
